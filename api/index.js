@@ -7,7 +7,7 @@ const NaoEncontrado = require('./erros/NaoEncontrado')
 const CampoInvalido = require('./erros/CampoInvalido')
 const DadosNaoFornecidos = require('./erros/DadosNaoFornecidos')
 const ValorNaoSuportado = require('./erros/ValorNaoSuportado')
-const { formatosAceitos } = require('./Serializador')
+const { formatosAceitos, SerializadorErro } = require('./Serializador')
 
 app.use(bodyParser.json())
 app.use((req, res, prox) => {
@@ -33,8 +33,11 @@ app.use((erro, req, res, prox) => {
     if(erro instanceof CampoInvalido || erro instanceof DadosNaoFornecidos) status = 400
     if(erro instanceof ValorNaoSuportado) status = 406
 
+    const serializador = new SerializadorErro(res.getHeader('Content-Type'))
+
     res.status(status)
-    res.send(JSON.stringify({mensagem: erro.message, id: erro.idErro}))
+    res.send(serializador.serializar
+        ({mensagem: erro.message, id: erro.idErro}))
 })
 
 app.listen(config.get('api.porta'), () => console.log('tudo de boa'))
