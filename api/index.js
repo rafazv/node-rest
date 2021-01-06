@@ -2,7 +2,7 @@ const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
 const config = require('config')
-const roteador = require('./rotas/fornecedores')
+
 const NaoEncontrado = require('./erros/NaoEncontrado')
 const CampoInvalido = require('./erros/CampoInvalido')
 const DadosNaoFornecidos = require('./erros/DadosNaoFornecidos')
@@ -25,7 +25,16 @@ app.use((req, res, prox) => {
     prox()
 })
 
+app.use((req, res, prox) => {
+    res.set('Access-Control-Allow-Origin', '*')
+    prox()
+})
+
+const roteador = require('./rotas/fornecedores')
 app.use('/api/fornecedores', roteador)
+
+const roteadorV2 = require('./rotas/fornecedores/rotas.v2')
+app.use('/api/v2/fornecedores', roteadorV2)
 
 app.use((erro, req, res, prox) => {
     let status = 500
